@@ -1,22 +1,34 @@
 'use strict';
 
-const asn1 = require('asn1.js');
+// const asn1 = require('asn1.js');
+const asn1 = require('../../lib/asn1');
 const rfc5280 = require('asn1.js-rfc5280');
 
 const OCSPRequest = asn1.define('OCSPRequest', function() {
   this.seq().obj(
     this.key('tbsRequest').use(TBSRequest),
-    this.key('optionalSignature').optional().explicit(0).use(Signature)
+    this.key('optionalSignature')
+      .optional()
+      .explicit(0)
+      .use(Signature)
   );
 });
 exports.OCSPRequest = OCSPRequest;
 
 const TBSRequest = asn1.define('TBSRequest', function() {
   this.seq().obj(
-    this.key('version').def('v1').explicit(0).use(rfc5280.Version),
-    this.key('requestorName').optional().explicit(1).use(rfc5280.GeneralName),
+    this.key('version')
+      .def('v1')
+      .explicit(0)
+      .use(rfc5280.Version),
+    this.key('requestorName')
+      .optional()
+      .explicit(1)
+      .use(rfc5280.GeneralName),
     this.key('requestList').seqof(Request),
-    this.key('requestExtensions').optional().explicit(2)
+    this.key('requestExtensions')
+      .optional()
+      .explicit(2)
       .seqof(rfc5280.Extension)
   );
 });
@@ -26,7 +38,10 @@ const Signature = asn1.define('Signature', function() {
   this.seq().obj(
     this.key('signatureAlgorithm').use(rfc5280.AlgorithmIdentifier),
     this.key('signature').bitstr(),
-    this.key('certs').optional().explicit(0).seqof(rfc5280.Certificate)
+    this.key('certs')
+      .optional()
+      .explicit(0)
+      .seqof(rfc5280.Certificate)
   );
 });
 exports.Signature = Signature;
@@ -34,8 +49,10 @@ exports.Signature = Signature;
 const Request = asn1.define('Request', function() {
   this.seq().obj(
     this.key('reqCert').use(CertID),
-    this.key('singleRequestExtensions').optional().explicit(0).seqof(
-      rfc5280.Extension)
+    this.key('singleRequestExtensions')
+      .optional()
+      .explicit(0)
+      .seqof(rfc5280.Extension)
   );
 });
 exports.Request = Request;
@@ -43,12 +60,16 @@ exports.Request = Request;
 const OCSPResponse = asn1.define('OCSPResponse', function() {
   this.seq().obj(
     this.key('responseStatus').use(ResponseStatus),
-    this.key('responseBytes').optional().explicit(0).seq().obj(
-      this.key('responseType').objid({
-        '1 3 6 1 5 5 7 48 1 1': 'id-pkix-ocsp-basic'
-      }),
-      this.key('response').octstr()
-    )
+    this.key('responseBytes')
+      .optional()
+      .explicit(0)
+      .seq()
+      .obj(
+        this.key('responseType').objid({
+          '1 3 6 1 5 5 7 48 1 1': 'id-pkix-ocsp-basic'
+        }),
+        this.key('response').octstr()
+      )
   );
 });
 exports.OCSPResponse = OCSPResponse;
@@ -70,18 +91,26 @@ const BasicOCSPResponse = asn1.define('BasicOCSPResponse', function() {
     this.key('tbsResponseData').use(ResponseData),
     this.key('signatureAlgorithm').use(rfc5280.AlgorithmIdentifier),
     this.key('signature').bitstr(),
-    this.key('certs').optional().explicit(0).seqof(rfc5280.Certificate)
+    this.key('certs')
+      .optional()
+      .explicit(0)
+      .seqof(rfc5280.Certificate)
   );
 });
 exports.BasicOCSPResponse = BasicOCSPResponse;
 
 const ResponseData = asn1.define('ResponseData', function() {
   this.seq().obj(
-    this.key('version').def('v1').explicit(0).use(rfc5280.Version),
+    this.key('version')
+      .def('v1')
+      .explicit(0)
+      .use(rfc5280.Version),
     this.key('responderID').use(ResponderID),
     this.key('producedAt').gentime(),
     this.key('responses').seqof(SingleResponse),
-    this.key('responseExtensions').optional().explicit(0)
+    this.key('responseExtensions')
+      .optional()
+      .explicit(0)
       .seqof(rfc5280.Extension)
   );
 });
@@ -105,8 +134,14 @@ const SingleResponse = asn1.define('SingleResponse', function() {
     this.key('certId').use(CertID),
     this.key('certStatus').use(CertStatus),
     this.key('thisUpdate').gentime(),
-    this.key('nextUpdate').optional().explicit(0).gentime(),
-    this.key('singleExtensions').optional().explicit(1).seqof(rfc5280.Extension)
+    this.key('nextUpdate')
+      .optional()
+      .explicit(0)
+      .gentime(),
+    this.key('singleExtensions')
+      .optional()
+      .explicit(1)
+      .seqof(rfc5280.Extension)
   );
 });
 exports.SingleResponse = SingleResponse;
@@ -123,11 +158,13 @@ exports.CertStatus = CertStatus;
 const RevokedInfo = asn1.define('RevokedInfo', function() {
   this.seq().obj(
     this.key('revocationTime').gentime(),
-    this.key('revocationReason').optional().explicit(0).use(rfc5280.ReasonCode)
+    this.key('revocationReason')
+      .optional()
+      .explicit(0)
+      .use(rfc5280.ReasonCode)
   );
 });
 exports.RevokedInfo = RevokedInfo;
-
 const CertID = asn1.define('CertID', function() {
   this.seq().obj(
     this.key('hashAlgorithm').use(rfc5280.AlgorithmIdentifier),
@@ -143,5 +180,5 @@ const Nonce = asn1.define('Nonce', function() {
 });
 exports.Nonce = Nonce;
 
-exports['id-pkix-ocsp'] = [ 1, 3, 6, 1, 5, 5, 7, 48, 1 ];
-exports['id-pkix-ocsp-nonce'] = [ 1, 3, 6, 1, 5, 5, 7, 48, 1, 2 ];
+exports['id-pkix-ocsp'] = [1, 3, 6, 1, 5, 5, 7, 48, 1];
+exports['id-pkix-ocsp-nonce'] = [1, 3, 6, 1, 5, 5, 7, 48, 1, 2];

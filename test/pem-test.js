@@ -20,34 +20,37 @@ describe('asn1.js PEM encoder/decoder', function() {
   hundred.fill('A');
 
   it('should encode PEM', function() {
-
-    const out = model.encode({
-      a: new BN(123),
-      b: {
-        data: hundred,
-        unused: 0
+    const out = model.encode(
+      {
+        a: new BN(123),
+        b: {
+          data: hundred,
+          unused: 0
+        },
+        c: new BN(456)
       },
-      c: new BN(456)
-    }, 'pem', {
-      label: 'MODEL'
-    });
+      'pem',
+      {
+        label: 'MODEL'
+      }
+    );
 
     const expected =
-        '-----BEGIN MODEL-----\n' +
-        'MG4CAXsDZQBBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
-        'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
-        'QUFBQUFBQUFBQUFBAgIByA==\n' +
-        '-----END MODEL-----';
+      '-----BEGIN MODEL-----\n' +
+      'MG4CAXsDZQBBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
+      'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
+      'QUFBQUFBQUFBQUFBAgIByA==\n' +
+      '-----END MODEL-----';
     assert.equal(out, expected);
   });
 
   it('should decode PEM', function() {
     const expected =
-        '-----BEGIN MODEL-----\n' +
-        'MG4CAXsDZQBBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
-        'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
-        'QUFBQUFBQUFBQUFBAgIByA==\n' +
-        '-----END MODEL-----';
+      '-----BEGIN MODEL-----\n' +
+      'MG4CAXsDZQBBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
+      'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB\n' +
+      'QUFBQUFBQUFBQUFBAgIByA==\n' +
+      '-----END MODEL-----';
 
     const out = model.decode(expected, 'pem', { label: 'MODEL' });
     assert.equal(out.a.toString(), '123');

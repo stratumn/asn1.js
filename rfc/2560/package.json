@@ -7,13 +7,10 @@
     "type": "git",
     "url": "git@github.com:indutny/asn1.js"
   },
-  "keywords": [
-    "asn1",
-    "rfc2560",
-    "der"
-  ],
+  "keywords": ["asn1", "rfc2560", "der"],
   "scripts": {
-    "test": "mocha --reporter=spec test/*-test.js"
+    "test":
+      "mocha --compilers js:babel-core/register --recursive --require babel-polyfill  --reporter=spec test/*-test.js"
   },
   "author": "Fedor Indutny",
   "license": "MIT",
@@ -24,10 +21,9 @@
   "dependencies": {
     "asn1.js-rfc5280": "^3.0.0"
   },
-  "peerDependencies": {
-    "asn1.js": "^5.0.0"
-  },
   "devDependencies": {
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "babel-core": "^6.5.2",
+    "babel-polyfill": "^6.5.0"
   }
 }
