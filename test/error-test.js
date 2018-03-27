@@ -1,19 +1,17 @@
 'use strict';
 /* global describe it */
+import assert from 'assert';
 
-const assert = require('assert');
-const asn1 = require('..');
-const bn = asn1.bignum;
-const fixtures = require('./fixtures');
+import fixtures from './fixtures';
+import { BigNumber as bn, define } from '../lib/asn1';
+
 const jsonEqual = fixtures.jsonEqual;
-
-const Buffer = require('buffer').Buffer;
 
 describe('asn1.js error', function() {
   describe('encoder', function() {
     function test(name, model, input, expected) {
       it('should support ' + name, function() {
-        const M = asn1.define('TestModel', model);
+        const M = define('TestModel', model);
 
         let error;
         assert.throws(function() {
@@ -25,81 +23,130 @@ describe('asn1.js error', function() {
           }
         });
 
-        assert(expected.test(error.stack),
-               'Failed to match, expected: ' + expected + ' got: ' +
-                   JSON.stringify(error.stack));
+        assert(
+          expected.test(error.stack),
+          'Failed to match, expected: ' +
+            expected +
+            ' got: ' +
+            JSON.stringify(error.stack)
+        );
       });
     }
 
     describe('primitives', function() {
-      test('int', function() {
-        this.int();
-      }, 'hello', /no values map/i);
+      test(
+        'int',
+        function() {
+          this.int();
+        },
+        'hello',
+        /no values map/i
+      );
 
-      test('enum', function() {
-        this.enum({ 0: 'hello', 1: 'world' });
-      }, 'gosh', /contain: "gosh"/);
+      test(
+        'enum',
+        function() {
+          this.enum({ 0: 'hello', 1: 'world' });
+        },
+        'gosh',
+        /contain: "gosh"/
+      );
 
-      test('objid', function() {
-        this.objid();
-      }, 1, /objid\(\) should be either array or string, got: 1/);
+      test(
+        'objid',
+        function() {
+          this.objid();
+        },
+        1,
+        /objid\(\) should be either array or string, got: 1/
+      );
 
-      test('numstr', function() {
-        this.numstr();
-      }, 'hello', /only digits and space/);
+      test(
+        'numstr',
+        function() {
+          this.numstr();
+        },
+        'hello',
+        /only digits and space/
+      );
 
-      test('printstr', function() {
-        this.printstr();
-      }, 'hello!', /only latin upper and lower case letters/);
+      test(
+        'printstr',
+        function() {
+          this.printstr();
+        },
+        'hello!',
+        /only latin upper and lower case letters/
+      );
     });
 
     describe('composite', function() {
-      test('shallow', function() {
-        this.seq().obj(
-          this.key('key').int()
-        );
-      }, { key: 'hello' } , /map at: \["key"\]/i);
+      test(
+        'shallow',
+        function() {
+          this.seq().obj(this.key('key').int());
+        },
+        { key: 'hello' },
+        /map at: \["key"\]/i
+      );
 
-      test('deep and empty', function() {
-        this.seq().obj(
-          this.key('a').seq().obj(
-            this.key('b').seq().obj(
-              this.key('c').int()
-            )
-          )
-        );
-      }, { } , /input is not object at: \["a"\]\["b"\]/i);
-
-      test('deep', function() {
-        this.seq().obj(
-          this.key('a').seq().obj(
-            this.key('b').seq().obj(
-              this.key('c').int()
-            )
-          )
-        );
-      }, { a: { b: { c: 'hello' } } } , /map at: \["a"\]\["b"\]\["c"\]/i);
-
-      test('use', function() {
-        const S = asn1.define('S', function() {
+      test(
+        'deep and empty',
+        function() {
           this.seq().obj(
-            this.key('x').int()
+            this.key('a')
+              .seq()
+              .obj(
+                this.key('b')
+                  .seq()
+                  .obj(this.key('c').int())
+              )
           );
-        });
+        },
+        {},
+        /input is not object at: \["a"\]\["b"\]/i
+      );
 
-        this.seq().obj(
-          this.key('a').seq().obj(
-            this.key('b').use(S)
-          )
-        );
-      }, { a: { b: { x: 'hello' } } } , /map at: \["a"\]\["b"\]\["x"\]/i);
+      test(
+        'deep',
+        function() {
+          this.seq().obj(
+            this.key('a')
+              .seq()
+              .obj(
+                this.key('b')
+                  .seq()
+                  .obj(this.key('c').int())
+              )
+          );
+        },
+        { a: { b: { c: 'hello' } } },
+        /map at: \["a"\]\["b"\]\["c"\]/i
+      );
+
+      test(
+        'use',
+        function() {
+          const S = define('S', function() {
+            this.seq().obj(this.key('x').int());
+          });
+
+          this.seq().obj(
+            this.key('a')
+              .seq()
+              .obj(this.key('b').use(S))
+          );
+        },
+        { a: { b: { x: 'hello' } } },
+        /map at: \["a"\]\["b"\]\["x"\]/i
+      );
     });
   });
 
   describe('decoder', function() {
     function test(name, model, input, expected) {
       it('should support ' + name, function() {
-        const M = asn1.define('TestModel', model);
+        const M = define('TestModel', model);
 
         let error;
         assert.throws(function() {
@@ -114,72 +161,126 @@ describe('asn1.js error', function() {
           partial: true
         });
 
-        assert(expected.test(error.stack),
-               'Failed to match, expected: ' + expected + ' got: ' +
-                   JSON.stringify(error.stack));
+        assert(
+          expected.test(error.stack),
+          'Failed to match, expected: ' +
+            expected +
+            ' got: ' +
+            JSON.stringify(error.stack)
+        );
 
         assert.equal(partial.errors.length, 1);
-        assert(expected.test(partial.errors[0].stack),
-               'Failed to match, expected: ' + expected + ' got: ' +
-                   JSON.stringify(partial.errors[0].stack));
+        assert(
+          expected.test(partial.errors[0].stack),
+          'Failed to match, expected: ' +
+            expected +
+            ' got: ' +
+            JSON.stringify(partial.errors[0].stack)
+        );
       });
     }
 
     describe('primitive', function() {
-      test('int', function() {
-        this.int();
-      }, '2201', /body of: "int"/);
+      test(
+        'int',
+        function() {
+          this.int();
+        },
+        '2201',
+        /body of: "int"/
+      );
 
-      test('int', function() {
-        this.int();
-      }, '', /tag of "int"/);
+      test(
+        'int',
+        function() {
+          this.int();
+        },
+        '',
+        /tag of "int"/
+      );
 
-      test('bmpstr invalid length', function() {
-        this.bmpstr();
-      }, '1e0b041f04400438043204350442', /bmpstr length mismatch/);
+      test(
+        'bmpstr invalid length',
+        function() {
+          this.bmpstr();
+        },
+        '1e0b041f04400438043204350442',
+        /bmpstr length mismatch/
+      );
 
-      test('numstr unsupported characters', function() {
-        this.numstr();
-      }, '12024141', /numstr unsupported characters/);
+      test(
+        'numstr unsupported characters',
+        function() {
+          this.numstr();
+        },
+        '12024141',
+        /numstr unsupported characters/
+      );
 
-      test('printstr unsupported characters', function() {
-        this.printstr();
-      }, '13024121', /printstr unsupported characters/);
+      test(
+        'printstr unsupported characters',
+        function() {
+          this.printstr();
+        },
+        '13024121',
+        /printstr unsupported characters/
+      );
     });
 
     describe('composite', function() {
-      test('shallow', function() {
-        this.seq().obj(
-          this.key('a').seq().obj()
-        );
-      }, '30', /length of "seq"/);
+      test(
+        'shallow',
+        function() {
+          this.seq().obj(
+            this.key('a')
+              .seq()
+              .obj()
+          );
+        },
+        '30',
+        /length of "seq"/
+      );
 
-      test('deep and empty', function() {
-        this.seq().obj(
-          this.key('a').seq().obj(
-            this.key('b').seq().obj(
-              this.key('c').int()
-            )
-          )
-        );
-      }, '300430023000', /tag of "int" at: \["a"\]\["b"\]\["c"\]/);
+      test(
+        'deep and empty',
+        function() {
+          this.seq().obj(
+            this.key('a')
+              .seq()
+              .obj(
+                this.key('b')
+                  .seq()
+                  .obj(this.key('c').int())
+              )
+          );
+        },
+        '300430023000',
+        /tag of "int" at: \["a"\]\["b"\]\["c"\]/
+      );
 
-      test('deep and incomplete', function() {
-        this.seq().obj(
-          this.key('a').seq().obj(
-            this.key('b').seq().obj(
-              this.key('c').int()
-            )
-          )
-        );
-      }, '30053003300122', /length of "int" at: \["a"\]\["b"\]\["c"\]/);
+      test(
+        'deep and incomplete',
+        function() {
+          this.seq().obj(
+            this.key('a')
+              .seq()
+              .obj(
+                this.key('b')
+                  .seq()
+                  .obj(this.key('c').int())
+              )
+          );
+        },
+        '30053003300122',
+        /length of "int" at: \["a"\]\["b"\]\["c"\]/
+      );
     });
   });
 
   describe('partial decoder', function() {
     function test(name, model, input, expectedObj, expectedErrs) {
       it('should support ' + name, function() {
-        const M = asn1.define('TestModel', model);
+        const M = define('TestModel', model);
 
         const decoded = M.decode(new Buffer(input, 'hex'), 'der', {
           partial: true
@@ -189,37 +290,53 @@ describe('asn1.js error', function() {
 
         assert.equal(decoded.errors.length, expectedErrs.length);
         expectedErrs.forEach(function(expected, i) {
-          assert(expected.test(decoded.errors[i].stack),
-                 'Failed to match, expected: ' + expected + ' got: ' +
-                     JSON.stringify(decoded.errors[i].stack));
+          assert(
+            expected.test(decoded.errors[i].stack),
+            'Failed to match, expected: ' +
+              expected +
+              ' got: ' +
+              JSON.stringify(decoded.errors[i].stack)
+          );
         });
       });
     }
 
-    test('last key not present', function() {
-      this.seq().obj(
-        this.key('a').seq().obj(
-          this.key('b').seq().obj(
-            this.key('c').int()
-          ),
-          this.key('d').int()
-        )
-      );
-    }, '30073005300022012e', { a: { b: {}, d: new bn(46) } }, [
-      /"int" at: \["a"\]\["b"\]\["c"\]/
-    ]);
+    test(
+      'last key not present',
+      function() {
+        this.seq().obj(
+          this.key('a')
+            .seq()
+            .obj(
+              this.key('b')
+                .seq()
+                .obj(this.key('c').int()),
+              this.key('d').int()
+            )
+        );
+      },
+      '30073005300022012e',
+      { a: { b: {}, d: new bn(46) } },
+      [/"int" at: \["a"\]\["b"\]\["c"\]/]
+    );
 
-    test('first key not present', function() {
-      this.seq().obj(
-        this.key('a').seq().obj(
-          this.key('b').seq().obj(
-            this.key('c').int()
-          ),
-          this.key('d').int()
-        )
-      );
-    }, '30073005300322012e', { a: { b: { c: new bn(46) } } }, [
-      /"int" at: \["a"\]\["d"\]/
-    ]);
+    test(
+      'first key not present',
+      function() {
+        this.seq().obj(
+          this.key('a')
+            .seq()
+            .obj(
+              this.key('b')
+                .seq()
+                .obj(this.key('c').int()),
+              this.key('d').int()
+            )
+        );
+      },
+      '30073005300322012e',
+      { a: { b: { c: new bn(46) } } },
+      [/"int" at: \["a"\]\["d"\]/]
+    );
   });
 });

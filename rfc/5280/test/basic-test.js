@@ -9,17 +9,17 @@ const rfc5280 = require('..');
 const Buffer = require('buffer').Buffer;
 
 describe('asn1.js RFC5280', function() {
-
   it('should decode Certificate', function() {
     const data = fs.readFileSync(__dirname + '/fixtures/cert1.crt');
     const res = rfc5280.Certificate.decode(data, 'der');
 
     const tbs = res.tbsCertificate;
     assert.equal(tbs.version, 'v3');
-    assert.deepEqual(tbs.serialNumber,
-      new asn1.bignum('462e4256bb1194dc', 16));
-    assert.equal(tbs.signature.algorithm.join('.'),
-      '1.2.840.113549.1.1.5');
+    assert.deepEqual(
+      tbs.serialNumber,
+      new asn1.BigNumber('462e4256bb1194dc', 16)
+    );
+    assert.equal(tbs.signature.algorithm.join('.'), '1.2.840.113549.1.1.5');
     assert.equal(tbs.signature.parameters.toString('hex'), '0500');
   });
 
@@ -31,28 +31,34 @@ describe('asn1.js RFC5280', function() {
 
     const tbs = res.tbsCertificate;
     assert.equal(tbs.version, 'v3');
-    assert.deepEqual(tbs.serialNumber,
-      new asn1.bignum('4d955d20af85c49f6925fbab7c665f89', 16));
-    assert.equal(tbs.signature.algorithm.join('.'),
-      '1.2.840.10045.4.3.3');  // RFC5754
-    const spki = rfc5280.SubjectPublicKeyInfo.encode(tbs.subjectPublicKeyInfo,
-      'der');
+    assert.deepEqual(
+      tbs.serialNumber,
+      new asn1.BigNumber('4d955d20af85c49f6925fbab7c665f89', 16)
+    );
+    assert.equal(tbs.signature.algorithm.join('.'), '1.2.840.10045.4.3.3'); // RFC5754
+    const spki = rfc5280.SubjectPublicKeyInfo.encode(
+      tbs.subjectPublicKeyInfo,
+      'der'
+    );
     // spki check to the output of
     // openssl x509 -in ecc_cert.pem -pubkey -noout |
     // openssl pkey -pubin  -outform der | openssl base64
-    assert.equal(spki.toString('base64'),
+    assert.equal(
+      spki.toString('base64'),
       'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE3QQ9svKQk5fG6bu8kdtR8KO' +
-                 'G7fvG04WTMgVJ4ASDYZZR/1chrgvaDucEoX/bKhy9ypg1xXFzQM3oaqtUhE' +
-                 'Mm4g=='
+        'G7fvG04WTMgVJ4ASDYZZR/1chrgvaDucEoX/bKhy9ypg1xXFzQM3oaqtUhE' +
+        'Mm4g=='
     );
   });
 
   it('should decode AuthorityInfoAccess', function() {
-    const data = new Buffer('305a302b06082b06010505073002861f687474703a2f2f70' +
-                          '6b692e676f6f676c652e636f6d2f47494147322e63727430' +
-                          '2b06082b06010505073001861f687474703a2f2f636c6965' +
-                          '6e7473312e676f6f676c652e636f6d2f6f637370',
-    'hex');
+    const data = new Buffer(
+      '305a302b06082b06010505073002861f687474703a2f2f70' +
+        '6b692e676f6f676c652e636f6d2f47494147322e63727430' +
+        '2b06082b06010505073001861f687474703a2f2f636c6965' +
+        '6e7473312e676f6f676c652e636f6d2f6f637370',
+      'hex'
+    );
 
     const info = rfc5280.AuthorityInfoAccessSyntax.decode(data, 'der');
 
@@ -86,8 +92,10 @@ describe('asn1.js RFC5280', function() {
       extensions[e.extnID] = e;
     });
     assert.equal(extensions.basicConstraints.extnValue.cA, true);
-    assert.equal(extensions.authorityInformationAccess.extnValue[0]
-      .accessLocation.value, 'http://ocsp.godaddy.com/');
+    assert.equal(
+      extensions.authorityInformationAccess.extnValue[0].accessLocation.value,
+      'http://ocsp.godaddy.com/'
+    );
 
     extensions = {};
     data = fs.readFileSync(__dirname + '/fixtures/cert5.crt');
@@ -142,12 +150,16 @@ describe('asn1.js RFC5280', function() {
 
     crl = rfc5280.CertificateList.decode(data, 'der');
     assert.equal(crl.tbsCertList.revokedCertificates.length, 2);
-    assert.deepEqual(crl.tbsCertList.revokedCertificates[0].userCertificate,
-      new asn1.bignum('764bedd38afd51f7', 16));
+    assert.deepEqual(
+      crl.tbsCertList.revokedCertificates[0].userCertificate,
+      new asn1.BigNumber('764bedd38afd51f7', 16)
+    );
 
     const cert1 = crl.tbsCertList.revokedCertificates[1];
-    assert.deepEqual(cert1.userCertificate,
-      new asn1.bignum('31da3380182af9b2', 16));
+    assert.deepEqual(
+      cert1.userCertificate,
+      new asn1.BigNumber('31da3380182af9b2', 16)
+    );
     assert.equal(cert1.crlEntryExtensions.length, 1);
 
     const ext1 = cert1.crlEntryExtensions[0];
