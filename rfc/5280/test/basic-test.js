@@ -6,8 +6,6 @@ const fs = require('fs');
 const asn1 = require('../../../');
 const rfc5280 = require('..');
 
-const Buffer = require('buffer').Buffer;
-
 describe('asn1.js RFC5280', function() {
   it('should decode Certificate', function() {
     const data = fs.readFileSync(__dirname + '/fixtures/cert1.crt');

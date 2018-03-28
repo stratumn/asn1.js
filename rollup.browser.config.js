@@ -1,12 +1,11 @@
-import babel from 'rollup-plugin-babel';
+import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
+import builtins from 'rollup-plugin-node-builtins';
+import babel from 'rollup-plugin-babel';
 import babelrc from 'babelrc-rollup';
-
-const pkg = require('./package.json');
 
 export default {
   input: 'lib/asn1.js',
-  external: Object.keys(pkg.dependencies),
   plugins: [
     babel(
       Object.assign(
@@ -16,13 +15,17 @@ export default {
         babelrc()
       )
     ),
+    builtins(),
     nodeResolve({
       jsnext: true,
+      browser: true,
       preferBuiltins: true
-    })
+    }),
+    commonjs()
   ],
   output: {
-    file: pkg.main,
-    format: 'cjs'
+    name: 'asn1.js',
+    format: 'umd',
+    file: 'dist/asn1.js'
   }
 };
