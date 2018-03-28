@@ -5,8 +5,6 @@ const assert = require('assert');
 const asn1 = require('..');
 const BN = require('bn.js');
 
-const Buffer = require('buffer').Buffer;
-
 describe('asn1.js PEM encoder/decoder', function() {
   const model = asn1.define('Model', function() {
     this.seq().obj(

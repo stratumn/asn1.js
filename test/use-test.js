@@ -7,8 +7,6 @@ const bn = asn1.BigNumber;
 const fixtures = require('./fixtures');
 const jsonEqual = fixtures.jsonEqual;
 
-const Buffer = require('buffer').Buffer;
-
 describe('asn1.js models', function() {
   describe('plain use', function() {
     it('should encode submodel', function() {

@@ -4,8 +4,6 @@
 const assert = require('assert');
 const rfc2560 = require('..');
 
-const Buffer = require('buffer').Buffer;
-
 describe('asn1.js RFC2560', function() {
   it('should decode OCSP response', function() {
     const data = new Buffer(

@@ -2,10 +2,11 @@
   "name": "asn1.js",
   "version": "5.0.0",
   "description": "ASN.1 encoder and decoder",
-  "main": "lib/asn1.js",
+  "main": "asn1.js",
   "browser": "dist/asn1.js",
   "scripts": {
-    "build": "rollup -c rollup.config.js && rollup -c rollup.config.min.js",
+    "build":
+      "rollup -c rollup.config.js && rollup -c rollup.browser.config.js && rollup -c rollup.min.config.js",
     "lint-2560": "eslint --fix rfc/2560/*.js rfc/2560/test/*.js",
     "lint-5280": "eslint --fix rfc/5280/*.js rfc/5280/test/*.js",
     "lint":

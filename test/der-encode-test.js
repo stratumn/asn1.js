@@ -5,8 +5,6 @@ const assert = require('assert');
 const asn1 = require('..');
 const BN = require('bn.js');
 
-const Buffer = require('buffer').Buffer;
-
 describe('asn1.js DER encoder', function() {
   /*
    * Explicit value shold be wrapped with A0 | EXPLICIT tag
